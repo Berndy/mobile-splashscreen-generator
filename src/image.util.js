@@ -1,7 +1,6 @@
 import createPica from 'pica';
 
-import ibr from 'image-blob-reduce';
-// const ibr = require('image-blob-reduce');
+const ibr = require('image-blob-reduce'); // this fixes an issue with image compression in mobile apps
 
 const pica = createPica();
 const reduceImageSize = ibr(pica);
@@ -119,21 +118,3 @@ export const compress = (maxWidth, maxHeight, aspectRatio) => async blob => {
 
     return compressedBlob;
 };
-
-/**
- * Compresses the image blob to the regular media size
- * @returns image blob
- */
-export const compressImage = compress(1920, 1920);
-
-/**
- * Compresses the image blob to the regular media size
- * @returns image blob
- */
-export const compressTileBackground = compress(1280, 1280, 16 / 9);
-
-/**
- * Compresses the image blob to thumbnail size
- * @returns image blob
- */
-export const compressThumbnail = compress(128, 128);
