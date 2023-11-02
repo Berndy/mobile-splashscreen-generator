@@ -3,6 +3,12 @@ import { useState } from "react";
 import { compress } from "./image.util";
 import JSZip from "jszip";
 
+const xmlString = `<?xml version="1.0" encoding="utf-8"?>
+<bitmap xmlns:android="http://schemas.android.com/apk/res/android"
+    android:src="@drawable/splash"
+    android:scaleType="centerCrop"
+/>`
+
 const pickFiles = async (accept, multiple) =>
   new Promise((resolve) => {
     const inputId = `input-${Math.random().toString(36).substring(2, 15)}`;
@@ -42,6 +48,8 @@ const generateSplashScreens = async (file) => {
     zip.folder(name).file("splash.webp", blob);
   };
 
+  await generateSplashScreen("drawable", 480, 800);
+  zip.folder("drawable").file("launch_splash.xml", xmlString);
   await generateSplashScreen("drawable-land", 800, 480);
   await generateSplashScreen("drawable-land-hdpi", 800, 480);
   await generateSplashScreen("drawable-land-ldpi", 320, 200);
