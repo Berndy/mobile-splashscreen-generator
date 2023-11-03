@@ -2,10 +2,7 @@ import './App.css';
 import { useState } from 'react';
 import { compressWebp, cropPng } from './image.util';
 import JSZip from 'jszip';
-<<<<<<< HEAD
 import { processZip } from './process-zip';
-=======
->>>>>>> master
 
 const androidXmlString = `<?xml version="1.0" encoding="utf-8"?>
 <bitmap xmlns:android="http://schemas.android.com/apk/res/android"
