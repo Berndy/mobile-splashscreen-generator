@@ -1,6 +1,6 @@
 import "./App.css";
 import { useState } from "react";
-import {  compressWebp, cropPng } from "./image.util";
+import {  compressWebp,  cropPng } from "./image.util";
 import JSZip from "jszip";
 
 const androidXmlString = `<?xml version="1.0" encoding="utf-8"?>
@@ -99,6 +99,9 @@ const generateSplashScreens = async (file) => {
   await generateSplashScreenIos("splash-2732x2732-2.png", 2732, 2732);
   await generateSplashScreenIos("splash-2732x2732-1.png", 2732, 2732);
   await generateSplashScreenIos("splash-2732x2732.png", 2732, 2732);
+
+  // playstore
+  zip.folder('playstore').file("playstoreIntroductionPlaceholder.png", await cropPng(1024, 500, 1024 / 500)(file));
 
   const base64string = await zip.generateAsync({ type: "base64" });
   downloadDataUri(

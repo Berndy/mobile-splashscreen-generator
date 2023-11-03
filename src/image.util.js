@@ -138,8 +138,19 @@ export const createImageProcessor = (mimeType, compression = 1) => {
     return compressedBlob;
   };
 
-  return compress;
+  const crop = (maxWidth, maxHeight, aspectRatio) => async (blob) => {
+    const croppedBlob = await cropImgBlob(blob, aspectRatio, blob.name)
+    // compressing after cropping vastly decreses blob size
+    const compressedBlob = await reduceImageToBlobQuality(
+      croppedBlob,
+      Math.max(maxWidth, maxHeight)
+    );
+
+    return compressedBlob;
+  };
+
+  return {compress, crop};
 };
 
-export const cropPng = createImageProcessor("image/png", 1);
-export const compressWebp = createImageProcessor("image/webp", 0.99);
+export const {compress: compressPng, crop: cropPng } = createImageProcessor("image/png", 1);
+export const {compress: compressWebp } = createImageProcessor("image/webp", 0.99);
