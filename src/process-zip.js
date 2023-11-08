@@ -1,21 +1,21 @@
 import JSZip from 'jszip';
 import { compressWebpMedium } from './image.util';
 
+const isPng = fileName => fileName.toLowerCase().endsWith('.png');
+const isJpg = fileName => fileName.toLowerCase().endsWith('.jpg');
+const isJpeg = fileName => fileName.toLowerCase().endsWith('.jpeg');
+
 const processFile = async (zipFile, targetFolder) => {
     console.log('processing file', zipFile.name);
 
-    if (
-        zipFile.name.endsWith('.png') ||
-        zipFile.name.endsWith('.jpg') ||
-        zipFile.name.endsWith('.jpeg')
-    ) {
+    if (isPng(zipFile.name) || isJpg(zipFile.name) || isJpeg(zipFile.name)) {
         let blob = await zipFile.async('blob');
 
-        if (zipFile.name.endsWith('.png')) {
+        if (isPng(zipFile.name)) {
             blob = new Blob([blob], { type: 'image/png' });
-        } else if (zipFile.name.endsWith('.jpg')) {
+        } else if (isJpg(zipFile.name)) {
             blob = new Blob([blob], { type: 'image/jpg' });
-        } else if (zipFile.name.endsWith('.jpeg')) {
+        } else if (isJpeg(zipFile.name)) {
             blob = new Blob([blob], { type: 'image/jpeg' });
         }
 
