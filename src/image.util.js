@@ -90,49 +90,6 @@ export const createImageProcessor = (mimeType, compression = 1) => {
         });
     };
 
-    const cleanBlob = async (imgBlob, fileName) => {
-        const image = await blobToImg(imgBlob);
-
-        const canvas = document.createElement('canvas');
-        const pixelRatio = window.devicePixelRatio;
-        const ctx = canvas.getContext('2d');
-
-        canvas.width = image.naturalWidth * pixelRatio;
-        canvas.height = image.naturalHeight * pixelRatio;
-
-        ctx.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
-        ctx.imageSmoothingQuality = 'high';
-
-        ctx.drawImage(
-            image,
-            0,
-            0,
-            image.naturalWidth,
-            image.naturalHeight,
-            0,
-            0,
-            image.naturalWidth,
-            image.naturalHeight,
-        );
-
-        return new Promise(resolve => {
-            canvas.toBlob(
-                blob => {
-                    if (!blob) {
-                        // reject(new Error('Canvas is empty'));
-                        console.error('Canvas is empty');
-                        return;
-                    }
-                    // eslint-disable-next-line no-param-reassign
-                    blob.name = fileName;
-                    resolve(blob);
-                },
-                mimeType,
-                1,
-            );
-        });
-    };
-
     /**
      * Calculates the options for the HTML image to achieve the given aspect ratio
      * @returns options object or undefined if no crop is needed
@@ -170,12 +127,8 @@ export const createImageProcessor = (mimeType, compression = 1) => {
      * @returns image blob
      */
     const compress = (maxWidth, maxHeight, aspectRatio) => async blob => {
-        const cleanedBlob = await cleanBlob(blob, blob.name);
         // compressing before cropping vastly improves performance
-        const onceCompressedBlob = await reduceImageToBlobSize(
-            cleanedBlob,
-            Math.max(maxWidth, maxHeight),
-        );
+        const onceCompressedBlob = await reduceImageToBlobSize(blob, Math.max(maxWidth, maxHeight));
         const croppedBlob = aspectRatio
             ? await cropImgBlob(onceCompressedBlob, aspectRatio, blob.name)
             : onceCompressedBlob;
@@ -189,8 +142,7 @@ export const createImageProcessor = (mimeType, compression = 1) => {
     };
 
     const crop = (maxWidth, maxHeight, aspectRatio) => async blob => {
-        const cleanedBlob = await cleanBlob(blob, blob.name);
-        const croppedBlob = await cropImgBlob(cleanedBlob, aspectRatio, blob.name);
+        const croppedBlob = await cropImgBlob(blob, aspectRatio, blob.name);
         // compressing after cropping vastly decreses blob size
         const compressedBlob = await reduceImageToBlobQuality(
             croppedBlob,
