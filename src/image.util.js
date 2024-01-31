@@ -7,23 +7,31 @@ export const blobToDataUrl = blob => URL.createObjectURL(blob);
 
 export const createImageProcessor = (mimeType, compression = 1) => {
     const pica = createPica();
-    const reduceImageSize = ibr(pica);
-    reduceImageSize._create_blob = env =>
-        pica.toBlob(env.out_canvas, mimeType, 1).then(blob => {
-            // eslint-disable-next-line no-param-reassign
-            env.out_blob = blob;
-            return env;
-        });
-    const reduceImageQuality = ibr(pica);
-    reduceImageQuality._create_blob = env =>
-        pica.toBlob(env.out_canvas, mimeType, compression).then(blob => {
-            // eslint-disable-next-line no-param-reassign
+    const ibrCreateBlob = (quality, callback) => env =>
+        pica.toBlob(env.out_canvas, mimeType, quality).then(blob => {
+            callback && callback(blob); // to yoink the blob as returning it sometimes messes with it's mime type for some reason
             env.out_blob = blob;
             return env;
         });
 
-    const reduceImageToBlobSize = (blob, max) => reduceImageSize.toBlob(blob, { max });
-    const reduceImageToBlobQuality = (blob, max) => reduceImageQuality.toBlob(blob, { max });
+    const reduceImageToBlobSize = async (blob, max) => {
+        let result = null;
+        const imageBlobReduce = ibr({ pica });
+        imageBlobReduce._create_blob = ibrCreateBlob(1, b => {
+            result = b;
+        });
+        await imageBlobReduce.toBlob(blob, { max });
+        return result;
+    };
+    const reduceImageToBlobQuality = async (blob, max) => {
+        let result = null;
+        const imageBlobReduce = ibr({ pica });
+        imageBlobReduce._create_blob = ibrCreateBlob(compression, b => {
+            result = b;
+        });
+        await imageBlobReduce.toBlob(blob, { max });
+        return result;
+    };
 
     const blobToImg = blob =>
         new Promise(resolve => {
